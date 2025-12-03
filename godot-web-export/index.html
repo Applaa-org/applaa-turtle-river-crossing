@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turtle River Crossing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+        #gameContainer {
+            text-align: center;
+            position: relative;
+        }
+        #gameCanvas {
+            border: 3px solid #2E8B57;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #B0E0E6 0%, #4682B4 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: block;
+            margin: 20px auto;
+        }
+        h1 {
+            color: #2E8B57;
+            margin-bottom: 10px;
+            font-size: 32px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .status {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #2E8B57;
+        }
+        .controls {
+            margin-top: 15px;
+            color: #555;
+            font-size: 14px;
+        }
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            display: none;
+        }
+        .overlay.show {
+            display: block;
+        }
+        button {
+            background: #2E8B57;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #228B22;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <h1>🐢 Turtle River Crossing</h1>
+        <div class="status" id="status">Use Arrow Keys to move the turtle and avoid the logs!</div>
+        <canvas id="gameCanvas" width="1280" height="720"></canvas>
+        <div class="controls">
+            Arrow Keys: Move Up, Down, Left, Right
+        </div>
+        <div class="overlay" id="startOverlay">
+            <h2>Welcome!</h2>
+            <p>Guide the turtle across the river without touching the moving logs.</p>
+            <button id="startButton">Start Game</button>
+        </div>
+        <div class="overlay" id="gameOverOverlay">
+            <h2>Game Over!</h2>
+            <p>The turtle touched a log!</p>
+            <button id="playAgainButton">Play Again</button>
+        </div>
+        <div class="overlay" id="winOverlay">
+            <h2>You Win!</h2>
+            <p>The turtle reached the other side!</p>
+            <button id="playAgainWinButton">Play Again</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusDiv = document.getElementById('status');
+        const startOverlay = document.getElementById('startOverlay');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const winOverlay = document.getElementById('winOverlay');
+        const startButton = document.getElementById('startButton');
+        const playAgainButton = document.getElementById('playAgainButton');
+        const playAgainWinButton = document.getElementById('playAgainWinButton');
+
+        // Game state
+        let gameStarted = false;
+        let gameOver = false;
+        let won = false;
+
+        // Turtle
+        const turtle = {
+            x: 640,
+            y: 650,
+            width: 40,
+            height: 40,
+            speed: 200,
+            color: '#228B22'
+        };
+
+        // Logs
+        const logs = [
+            { x: 200, y: 600, width: 100, height: 30, speed: 100, direction: 1, color: '#8B4513' },
+            { x: 500, y: 550, width: 100, height: 30, speed: 100, direction: -1, color: '#8B4513' },
+            { x: 800, y: 500, width: 100, height: 30, speed: 100, direction: 1, color: '#8B4513' },
+            { x: 300, y: 450, width: 100, height: 30, speed: 100, direction: -1, color: '#8B4513' },
+            { x: 700, y: 400, width: 100, height: 30, speed: 100, direction: 1, color: '#8B4513' }
+        ];
+
+        // Ground
+        const ground = {
+            x: 0,
+            y: 670,
+            width: 1280,
+            height: 50,
+            color: '#228B22'
+        };
+
+        // Input
+        const keys = {};
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        // Event listeners
+        startButton.addEventListener('click', startGame);
+        playAgainButton.addEventListener('click', resetGame);
+        playAgainWinButton.addEventListener('click', resetGame);
+
+        function startGame() {
+            gameStarted = true;
+            startOverlay.classList.remove('show');
+            statusDiv.textContent = 'Game in progress...';
+        }
+
+        function resetGame() {
+            gameStarted = false;
+            gameOver = false;
+            won = false;
+            turtle.x = 640;
+            turtle.y = 650;
+            logs.forEach(log => {
+                log.x = Math.random() * (canvas.width - log.width);
+            });
+            gameOverOverlay.classList.remove('show');
+            winOverlay.classList.remove('show');
+            startOverlay.classList.add('show');
+            statusDiv.textContent = 'Use Arrow Keys to move the turtle and avoid the logs!';
+        }
+
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+
+        function update(delta) {
+            if (!gameStarted || gameOver || won) return;
+
+            // Move turtle
+            if (keys['ArrowLeft']) turtle.x -= turtle.speed * delta;
+            if (keys['ArrowRight']) turtle.x += turtle.speed * delta;
+            if (keys['ArrowUp']) turtle.y -= turtle.speed * delta;
+            if (keys['ArrowDown']) turtle.y += turtle.speed * delta;
+
+            // Keep turtle in bounds
+            turtle.x = Math.max(0, Math.min(canvas.width - turtle.width, turtle.x));
+            turtle.y = Math.max(0, Math.min(canvas.height - turtle.height, turtle.y));
+
+            // Move logs
+            logs.forEach(log => {
+                log.x += log.speed * log.direction * delta;
+                if (log.x > canvas.width) log.x = -log.width;
+                if (log.x < -log.width) log.x = canvas.width;
+            });
+
+            // Check collisions with logs
+            logs.forEach(log => {
+                if (checkCollision(turtle, log)) {
+                    gameOver = true;
+                    gameOverOverlay.classList.add('show');
+                    statusDiv.textContent = 'Game Over!';
+                }
+            });
+
+            // Check win condition
+            if (turtle.y < 50) {
+                won = true;
+                winOverlay.classList.add('show');
+                statusDiv.textContent = 'You Win!';
+            }
+        }
+
+        function render() {
+            // Clear canvas
+            ctx.fillStyle = 'linear-gradient(180deg, #B0E0E6 0%, #4682B4 100%)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw ground
+            ctx.fillStyle = ground.color;
+            ctx.fillRect(ground.x, ground.y, ground.width, ground.height);
+
+            // Draw logs
+            logs.forEach(log => {
+                ctx.fillStyle = log.color;
+                ctx.fillRect(log.x, log.y, log.width, log.height);
+                // Add some detail to make it look like a log
+                ctx.strokeStyle = '#654321';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(log.x, log.y, log.width, log.height);
+            });
+
+            // Draw turtle
+            ctx.fillStyle = turtle.color;
+            ctx.beginPath();
+            ctx.arc(turtle.x + turtle.width / 2, turtle.y + turtle.height / 2, turtle.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+            // Add shell pattern
+            ctx.fillStyle = '#32CD32';
+            ctx.beginPath();
+            ctx.arc(turtle.x + turtle.width / 2, turtle.y + turtle.height / 2, turtle.width / 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        let lastTime = 0;
+        function gameLoop(currentTime) {
+            const delta = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+
+            update(delta);
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize
+        startOverlay.classList.add('show');
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

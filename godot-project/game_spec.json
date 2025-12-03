@@ -1,0 +1,276 @@
+{
+  "game": {
+    "name": "Turtle River Crossing",
+    "type": "2D",
+    "description": "A real-time 2D game where the player controls a turtle to cross a river by avoiding moving logs. If the turtle touches a log, it's game over. Reach the top to win.",
+    "genre": "action",
+    "version": "1.0.0"
+  },
+  "settings": {
+    "window": {
+      "width": 1280,
+      "height": 720,
+      "resizable": true
+    },
+    "physics": {
+      "enabled": true,
+      "gravity": {
+        "x": 0,
+        "y": 980
+      }
+    },
+    "rendering": {}
+  },
+  "scenes": [
+    {
+      "name": "Main",
+      "type": "2D",
+      "path": "res://scenes/Main.tscn",
+      "nodes": [
+        {
+          "name": "Root",
+          "type": "Node2D",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "children": [
+            {
+              "name": "Turtle",
+              "type": "CharacterBody2D",
+              "position": {
+                "x": 640,
+                "y": 650,
+                "z": 0
+              },
+              "children": [
+                {
+                  "name": "Sprite2D",
+                  "type": "Sprite2D",
+                  "position": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "properties": {
+                    "modulate": "0.2,0.8,0.2,1",
+                    "scale": "0.5,0.5"
+                  }
+                },
+                {
+                  "name": "CollisionShape2D",
+                  "type": "CollisionShape2D",
+                  "properties": {
+                    "shape": "RectangleShape2D(40,40)"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Log1",
+              "type": "CharacterBody2D",
+              "position": {
+                "x": 200,
+                "y": 600,
+                "z": 0
+              },
+              "properties": {
+                "direction": 1
+              },
+              "children": [
+                {
+                  "name": "Sprite2D",
+                  "type": "Sprite2D",
+                  "properties": {
+                    "modulate": "0.6,0.3,0.1,1",
+                    "scale": "1.25,0.75"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Log2",
+              "type": "CharacterBody2D",
+              "position": {
+                "x": 500,
+                "y": 550,
+                "z": 0
+              },
+              "properties": {
+                "direction": -1
+              },
+              "children": [
+                {
+                  "name": "Sprite2D",
+                  "type": "Sprite2D",
+                  "properties": {
+                    "modulate": "0.6,0.3,0.1,1",
+                    "scale": "1.25,0.75"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Log3",
+              "type": "CharacterBody2D",
+              "position": {
+                "x": 800,
+                "y": 500,
+                "z": 0
+              },
+              "properties": {
+                "direction": 1
+              },
+              "children": [
+                {
+                  "name": "Sprite2D",
+                  "type": "Sprite2D",
+                  "properties": {
+                    "modulate": "0.6,0.3,0.1,1",
+                    "scale": "1.25,0.75"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Log4",
+              "type": "CharacterBody2D",
+              "position": {
+                "x": 300,
+                "y": 450,
+                "z": 0
+              },
+              "properties": {
+                "direction": -1
+              },
+              "children": [
+                {
+                  "name": "Sprite2D",
+                  "type": "Sprite2D",
+                  "properties": {
+                    "modulate": "0.6,0.3,0.1,1",
+                    "scale": "1.25,0.75"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Log5",
+              "type": "CharacterBody2D",
+              "position": {
+                "x": 700,
+                "y": 400,
+                "z": 0
+              },
+              "properties": {
+                "direction": 1
+              },
+              "children": [
+                {
+                  "name": "Sprite2D",
+                  "type": "Sprite2D",
+                  "properties": {
+                    "modulate": "0.6,0.3,0.1,1",
+                    "scale": "1.25,0.75"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Camera",
+              "type": "Camera2D",
+              "position": {
+                "x": 640,
+                "y": 360,
+                "z": 0
+              }
+            },
+            {
+              "name": "CanvasLayer",
+              "type": "CanvasLayer",
+              "children": [
+                {
+                  "name": "StatusLabel",
+                  "type": "Label",
+                  "anchors": "center",
+                  "text": "",
+                  "horizontal_alignment": "center",
+                  "vertical_alignment": "center"
+                },
+                {
+                  "name": "PlayAgainButton",
+                  "type": "Button",
+                  "anchors": "center",
+                  "text": "Play Again",
+                  "visible": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "camera": {
+        "type": "Camera2D",
+        "position": {
+          "x": 640,
+          "y": 360,
+          "z": 0
+        }
+      }
+    }
+  ],
+  "assets": {
+    "sprites": [
+      {
+        "name": "turtle",
+        "path": "res://assets/sprites/turtle.png",
+        "type": "character"
+      },
+      {
+        "name": "log",
+        "path": "res://assets/sprites/log.png",
+        "type": "obstacle"
+      }
+    ],
+    "sounds": [
+      {
+        "name": "splash",
+        "path": "res://assets/sounds/splash.wav",
+        "type": "sfx"
+      },
+      {
+        "name": "win",
+        "path": "res://assets/sounds/win.wav",
+        "type": "sfx"
+      },
+      {
+        "name": "lose",
+        "path": "res://assets/sounds/lose.wav",
+        "type": "sfx"
+      }
+    ],
+    "music": [
+      {
+        "name": "river_ambience",
+        "path": "res://assets/music/river_ambience.ogg"
+      }
+    ]
+  },
+  "scripts": [
+    {
+      "name": "Turtle",
+      "path": "res://scripts/Turtle.gd",
+      "description": "Player turtle movement and collision detection"
+    },
+    {
+      "name": "Log",
+      "path": "res://scripts/Log.gd",
+      "description": "Moving log obstacle"
+    },
+    {
+      "name": "Main",
+      "path": "res://scripts/Main.gd",
+      "description": "Main game logic and UI management"
+    }
+  ]
+}
